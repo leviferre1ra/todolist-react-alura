@@ -5,60 +5,24 @@ import { Footer } from "./components/Footer"
 import { Header } from "./components/Header"
 import { Heading } from "./components/Heading"
 import { IconPlus, IconSchool } from "./components/icons"
-import { SubHeading } from "./components/SubHeading"
-import { ToDoItem } from "./components/ToDoItem"
-import { ToDoList } from "./components/ToDoList"
 import { Dialog } from "./components/Dialog"
-import { useState } from "react"
+import { use } from "react"
 import { ToDoForm } from "./components/ToDoForm"
-
-// const todos = [
-//   {
-//     id: 1,
-//     description: "JSX e componentes",
-//     completed: false,
-//     createdAt: "2022-10-31"
-//   },
-//   {
-//     id: 2,
-//     description: "Props, state e hooks",
-//     completed: false,
-//     createdAt: "2022-10-31"
-//   },
-//   {
-//     id: 3,
-//     description: "Ciclo de vida dos componentes",
-//     completed: false,
-//     createdAt: "2022-10-31"
-//   },
-//   {
-//     id: 4,
-//     description: "Testes unitários com Jest",
-//     completed: false,
-//     createdAt: "2022-10-31"
-//   }
-// ]
-// const completed = [
-//   {
-//     id: 5,
-//     description: "Controle de inputs e formulários controlados",
-//     completed: true,
-//     createdAt: "2022-10-31"
-//   },
-//   {
-//     id: 6,
-//     description: "Rotas dinâmicas",
-//     completed: true,
-//     createdAt: "2022-10-31"
-//   }
-// ]
+import TodoContex from "./components/TodoProvider/TodoContext"
+import { TodoGroup } from "./components/TodoGroup"
+import { EmptyState } from "./components/EmptyState"
 
 function App() {
 
-  const [showDialog, setShowDialog] = useState(false)
+  const { todos, addTodo, showDialog, openFormTodoDialog, closeFormTodoDialog, selectedTodo, editTodo } = use(TodoContex)
 
-  const toggleDialog = () => {
-    setShowDialog(!showDialog)
+  const handleFormSubmit = (formData) => {
+    if (selectedTodo) {
+      editTodo(formData)
+    } else {
+      addTodo(formData)
+    }
+    closeFormTodoDialog()
   }
 
   return (
@@ -69,35 +33,23 @@ function App() {
             <IconSchool /> Plano de estudos
           </Heading>
         </Header>
-
         <ChecklistsWrapper>
-          {/* <SubHeading>Para estudar</SubHeading>
-          <ToDoList>
-            {todos.filter(t => !t.completed).map(function (t) {
-              return <ToDoItem
-                key={t.id}
-                item={t}
-                onToggleCompleted={toggleTodoCompleted}
-                onDeleteTodo={deleteTodo}
-              />
-            })}
-          </ToDoList>
-          <SubHeading>Concluído</SubHeading>
-          <ToDoList>
-            {todos.filter(t => t.completed).map(function (t) {
-              return <ToDoItem
-                key={t.id}
-                item={t}
-                onToggleCompleted={toggleTodoCompleted}
-                onDeleteTodo={deleteTodo}
-              />
-            })}
-          </ToDoList> */}
+          <TodoGroup
+            heading="Para estudar"
+            items={todos.filter(t => !t.completed)}
+          />
+          {todos.length == 0 && <EmptyState />}
+          <TodoGroup
+            heading="Concluído"
+            items={todos.filter(t => t.completed)}
+          />
           <Footer>
-            <Dialog isOpen={showDialog} onClose={toggleDialog}>
-              {/* <ToDoForm onSubmit={addTodo} /> */}
+            <Dialog isOpen={showDialog} onClose={closeFormTodoDialog}>
+              <ToDoForm onSubmit={handleFormSubmit}
+                defaultValue={selectedTodo?.description}
+              />
             </Dialog>
-            <FabButton onClick={toggleDialog}>
+            <FabButton onClick={() => openFormTodoDialog()}>
               <IconPlus />
             </FabButton>
           </Footer>

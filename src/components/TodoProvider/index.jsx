@@ -1,22 +1,31 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TodoContex from "./TodoContext";
+
+const TODOS = 'todos';
 
 export function TodoProvider({ children }) {
 
-    const [todos, setTodos] = useState([
-        {
-            id: 1,
-            description: "JSX e componentes",
-            completed: false,
-            createdAt: "2022-10-31"
-        },
-        {
-            id: 2,
-            description: "Controle de inputs e formulários controlados",
-            completed: true,
-            createdAt: "2022-10-31"
+    const savedTodos = localStorage.getItem(TODOS)
+
+    const [todos, setTodos] = useState(savedTodos ? JSON.parse(savedTodos) : [])
+    const [showDialog, setShowDialog] = useState(false)
+    const [selectedTodo, setSelectedTodo] = useState();
+
+    const openFormTodoDialog = (todo) => {
+        if (todo) {
+            setSelectedTodo(todo)
         }
-    ])
+        setShowDialog(true)
+    }
+
+    const closeFormTodoDialog = () => {
+        setShowDialog(false)
+        setSelectedTodo(false)
+    }
+
+    useEffect(() => {
+        localStorage.setItem(TODOS, JSON.stringify(todos))
+    }, [todos])
 
     const addTodo = (formData) => {
         const description = formData.get('description')
@@ -45,6 +54,20 @@ export function TodoProvider({ children }) {
         })
     }
 
+    const editTodo = (formData) => {
+        setTodos(prevState => {
+            return prevState.map(t => {
+                if (t.id == selectedTodo.id) {
+                    return {
+                        ...t,
+                        description: formData.get('description')
+                    }
+                }
+                return t
+            })
+        })
+    }
+
     const deleteTodo = (todo) => {
         setTodos(prevState => {
             return prevState.filter(t => t.id != todo.id)
@@ -52,13 +75,19 @@ export function TodoProvider({ children }) {
         })
     }
 
+
     return (
         <TodoContex
             value={{
                 todos,
                 addTodo,
                 toggleTodoCompleted,
-                deleteTodo
+                deleteTodo,
+                showDialog,
+                openFormTodoDialog,
+                closeFormTodoDialog,
+                selectedTodo,
+                editTodo
             }}
         >
             {children}

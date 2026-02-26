@@ -3,12 +3,14 @@ import { SaveButton } from "../SaveButton"
 
 import './todo-form.style.css'
 
-export function ToDoForm({ onSubmit }) {
+export function ToDoForm({ onSubmit, defaultValue }) {
     return (
          <form className="todo-form"  action={onSubmit} >
-            <TextInput placeholder="Digite o item que deseja adicionar" 
+            <TextInput
+            placeholder="Digite o item que deseja adicionar" 
             required
             name="description"
+            defaultValue={defaultValue}
             />
                 
             <SaveButton>
